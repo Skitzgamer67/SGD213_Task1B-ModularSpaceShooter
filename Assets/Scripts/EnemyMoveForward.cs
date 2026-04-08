@@ -1,27 +1,34 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class EnemyMoveForward : MonoBehaviour {
-
+public class EnemyMovementAndRotation : MonoBehaviour
+{
+    [Header("Movement")]
+    [SerializeField]
     private float acceleration = 75f;
-
+    [SerializeField]
     private float initialVelocity = 2f;
 
-    private Rigidbody2D ourRigidbody;
+    [Header("Rotation")]
+    [SerializeField]
+    private float maximumSpinSpeed = 200f;
 
-    // Use this for initialization
+    private Rigidbody2D rb;
+
     void Start()
     {
-        ourRigidbody = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
 
-        ourRigidbody.velocity = Vector2.down * initialVelocity;
+        // Initial downward movement
+        rb.velocity = Vector2.down * initialVelocity;
+
+        // Random spin
+        rb.angularVelocity = Random.Range(-maximumSpinSpeed, maximumSpinSpeed);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Vector2 ForceToAdd = Vector2.down * acceleration * Time.deltaTime;
-
-        ourRigidbody.AddForce(ForceToAdd);
+        // Apply continuous downward acceleration
+        Vector2 forceToAdd = Vector2.down * acceleration * Time.deltaTime;
+        rb.AddForce(forceToAdd);
     }
 }
