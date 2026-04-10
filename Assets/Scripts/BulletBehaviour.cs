@@ -19,15 +19,19 @@ public class BulletBehaviour : MonoBehaviour
     // Triggers on collision
     void OnTriggerEnter2D(Collider2D other)
     {
+        // Checks if the other object has the 'Enemy' tag
         if (other.CompareTag("Enemy")) 
         {
-            Destroy(other.gameObject); // kill enemy
-            Destroy(gameObject);       // destroy bullet
+            Destroy(other.gameObject); // Destroys enemy
+            Destroy(gameObject);       // Destroys bullet
         }
     }
 
+
+    // Called when object is no longer visible on any camera
     void OnBecameInvisible()
     {
+        // Destroys bullet
         Destroy(gameObject);
     }
 }

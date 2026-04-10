@@ -38,18 +38,7 @@ public class ShootingScript : MonoBehaviour
                 lastFiredTime = CurrentTime;
             }
 
-            //print("Shoot!");
+            print("Shoot!");
         }
     }
-
-    /// <summary>
-    /// SampleMethod is a sample of how to use abstraction by
-    /// specification. It converts a provided integer to a float.
-    /// </summary>
-    /// <param name="number">any integer</param>
-    /// <returns>the number parameter as a float</returns>
-    public float SampleMethod(int number) {
-        return number;
-    }
-
 }
