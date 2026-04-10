@@ -3,14 +3,11 @@
 public class EnemyMovementAndRotation : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField]
-    private float acceleration = 75f;
-    [SerializeField]
-    private float initialVelocity = 2f;
+    [SerializeField] private float acceleration = 75f;
+    [SerializeField] private float initialVelocity = 2f;
 
     [Header("Rotation")]
-    [SerializeField]
-    private float maximumSpinSpeed = 200f;
+    [SerializeField]private float maximumSpinSpeed = 200f;
 
     private Rigidbody2D rb;
 
