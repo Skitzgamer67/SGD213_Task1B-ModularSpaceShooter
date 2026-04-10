@@ -4,29 +4,22 @@ using System.Collections.Generic;
 public class BulletBehaviour : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField] private float acceleration = 50f;
-    [SerializeField] private float initialVelocity = 5f;
+    [SerializeField] private float speed = 5f;
 
-    [Header("Collision")]
-    [SerializeField] private List<string> destroyTags;
-    [SerializeField] private bool useWhitelist = false;
 
     private Rigidbody2D rb;
 
     void Start()
     {
+        // Sets the bullet's speed value on initialization
         rb = GetComponent<Rigidbody2D>();
-        rb.velocity = Vector2.up * initialVelocity;
+        rb.velocity = transform.up * speed;
     }
 
-    void FixedUpdate()
-    {
-        rb.AddForce(Vector2.up * acceleration * Time.fixedDeltaTime);
-    }
-
+    // Triggers on collision
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy")) 
         {
             Destroy(other.gameObject); // kill enemy
             Destroy(gameObject);       // destroy bullet
