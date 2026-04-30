@@ -1,30 +1,41 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class SpawnOverTimeScript : MonoBehaviour
 {
+    [Header("Prefabs")]
+    [SerializeField] private GameObject asteroidPrefab;
+    [SerializeField] private GameObject enemySpaceshipPrefab;
 
-    // Object to spawn
-    [SerializeField]
-    private GameObject spawnObject;
+    [Header("Spawn Timing")]
+    [SerializeField] private float minSpawnDelay = 2f;
+    [SerializeField] private float maxSpawnDelay = 5f;
 
-    // Delay between spawns
-    [SerializeField]
-    private float spawnDelay = 2f;
+    [Header("Spawn Chance")]
+    [SerializeField][Range(0f, 1f)] private float enemySpawnChance = 0.1f; // 10%
 
     private Renderer ourRenderer;
 
     void Start()
     {
-
         ourRenderer = GetComponent<Renderer>();
 
-        // Stop spawner from being visible
-        ourRenderer.enabled = false;
+        if (ourRenderer != null)
+        {
+            ourRenderer.enabled = false;
+        }
 
-        // Call the given function after spawnDelay seconds, 
-        // and then repeatedly call it after spawnDelay seconds.
-        InvokeRepeating("Spawn", spawnDelay, spawnDelay);
+        StartCoroutine(SpawnLoop());
+    }
+
+    private System.Collections.IEnumerator SpawnLoop()
+    {
+        while (true)
+        {
+            float delay = Random.Range(minSpawnDelay, maxSpawnDelay);
+            yield return new WaitForSeconds(delay);
+
+            Spawn();
+        }
     }
 
     void Spawn()
@@ -32,10 +43,13 @@ public class SpawnOverTimeScript : MonoBehaviour
         float x1 = transform.position.x - ourRenderer.bounds.size.x / 2;
         float x2 = transform.position.x + ourRenderer.bounds.size.x / 2;
 
-        // Randomly pick a point within the spawn object
         Vector2 spawnPoint = new Vector2(Random.Range(x1, x2), transform.position.y);
 
-        // Spawn the object at the 'spawnPoint' position
-        Instantiate(spawnObject, spawnPoint, Quaternion.identity);
+        // Decide what to spawn
+        GameObject prefabToSpawn = Random.value <= enemySpawnChance
+            ? enemySpaceshipPrefab
+            : asteroidPrefab;
+
+        Instantiate(prefabToSpawn, spawnPoint, Quaternion.identity);
     }
 }
