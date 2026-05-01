@@ -1,72 +1,124 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-/// <summary>
-/// MoveConstantly gives an object the ability to continuously move based on the
-/// specified direction, acceleration and initialVelocity variables.
-/// </summary>
+/* SUMMARY
+
+MoveConstantly gives an object the ability to continuously move based on
+a direction, acceleration, and initial velocity.
+
+If the object is the asteroid prefab named "Asteroid", it can randomise its
+falling speed and rotation when spawned.
+
+*/
 public class MoveConstantly : MonoBehaviour
 {
+    [Header("Movement")]
+    [SerializeField] private float acceleration = 100f;
+    [SerializeField] private float initialVelocity = 10f;
 
     [SerializeField]
-    private float acceleration = 100f;
-
-    [SerializeField]
-    private float initialVelocity = 10f;
-
-    [SerializeField]
-    // our direction to move in
     private Vector2 direction = new Vector2(0, 1);
 
-    /// <summary>
-    /// Direction provides access to the direction variable used to direct the movement of our object.
-    /// It is expected that when setting the direction, the provided Vector2 is a unit vector. If not,
-    /// it will be automatically normalised.
-    /// </summary>
-    public Vector2 Direction {
-        get {
+    [Header("Asteroid Random Settings")]
+    [SerializeField] private bool randomiseIfNamedEnemy = true;
+    [SerializeField] private float minAsteroidSpeed = 3f;
+    [SerializeField] private float maxAsteroidSpeed = 8f;
+    [SerializeField] private float minAsteroidSpinSpeed = 50f;
+    [SerializeField] private float maxAsteroidSpinSpeed = 250f;
+
+    private Rigidbody2D ourRigidbody;
+    private bool isAsteroid;
+
+    public Vector2 Direction
+    {
+        get
+        {
             return direction;
         }
-        set {
-            if (value.magnitude == 1) {
+        set
+        {
+            if (value.magnitude == 1)
+            {
                 direction = value;
-            } else {
+            }
+            else
+            {
                 direction = value.normalized;
             }
         }
     }
-    void OnTriggerEnter2D(Collider2D other)
+
+    private void Start()
     {
-        if (gameObject.CompareTag("Enemy")) // Checks if this script is within a gameObject with the Enemy Tag (This is so this script can also be used in the Pickup)
+        ourRigidbody = GetComponent<Rigidbody2D>();
+
+        if (ourRigidbody == null)
         {
-            // Checks if the other object has the 'Player' tag
+            Debug.LogError(gameObject.name + " is missing a Rigidbody2D.");
+            return;
+        }
+
+        isAsteroid = IsNamedEnemyAsteroid();
+
+        if (isAsteroid && randomiseIfNamedEnemy)
+        {
+            ApplyRandomAsteroidSettings();
+        }
+
+        ourRigidbody.velocity = direction * initialVelocity;
+    }
+
+    private void Update()
+    {
+        if (ourRigidbody == null)
+        {
+            return;
+        }
+
+        Vector2 forceToAdd = direction * acceleration * Time.deltaTime;
+        ourRigidbody.AddForce(forceToAdd);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (gameObject.CompareTag("Enemy"))
+        {
             if (other.CompareTag("Player"))
             {
-                Destroy(other.gameObject); // Destroys enemy
-                Destroy(gameObject);       // Destroys bullet
+                Destroy(other.gameObject);
+                Destroy(gameObject);
             }
         }
     }
 
-    // local references
-    private Rigidbody2D ourRigidbody;
-
-    void Start()
+    private void OnBecameInvisible()
     {
-        ourRigidbody = GetComponent<Rigidbody2D>();
-
-        ourRigidbody.velocity = direction * initialVelocity;
-    }
-    void OnBecameInvisible()
-    {
-        // Destroys bullet
         Destroy(gameObject);
     }
-    void Update()
+
+    /// <summary>
+    /// Checks whether this object is the asteroid prefab called "enemy".
+    /// Unity-spawned prefab instances usually become "enemy(Clone)", so this handles that too.
+    /// </summary>
+    private bool IsNamedEnemyAsteroid()
     {
-        // calculate our force to add, based on our provided direction, acceleration and delta time
-        Vector2 forceToAdd = direction * acceleration * Time.deltaTime;
-        // add our forceToAdd to ourRigidbody
-        ourRigidbody.AddForce(forceToAdd);
+        string cleanName = gameObject.name.Replace("(Clone)", "").Trim();
+        return cleanName == "Asteroid";
+    }
+
+    /// <summary>
+    /// Gives the asteroid a random speed and random clockwise/anticlockwise spin.
+    /// </summary>
+    private void ApplyRandomAsteroidSettings()
+    {
+        initialVelocity = Random.Range(minAsteroidSpeed, maxAsteroidSpeed);
+
+        float spinSpeed = Random.Range(minAsteroidSpinSpeed, maxAsteroidSpinSpeed);
+
+        if (Random.value < 0.5f)
+        {
+            spinSpeed *= -1f;
+        }
+
+        ourRigidbody.angularVelocity = spinSpeed;
     }
 }
