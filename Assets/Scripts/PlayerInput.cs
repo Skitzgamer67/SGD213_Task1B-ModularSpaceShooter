@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// PlayerInput handles all of the player specific input behaviour, and passes the input information
-/// to the appropriate scripts.
+/// to the appropriate scripts
 /// </summary>
 public class PlayerInput : MonoBehaviour
 {
@@ -34,27 +34,24 @@ public class PlayerInput : MonoBehaviour
 
     void Update()
     {
-        // read our horizontal input axis
-        float horizontalInput = Input.GetAxis("Horizontal");
-        // if movement input is not zero
-        if (horizontalInput != 0.0f)
+        float horizontalInput = Input.GetAxis("Horizontal"); // Reads the horizontal input axis
+
+        if (horizontalInput != 0.0f) // If movement input is not zero
         {
-            // ensure our playerMovementScript is populated to avoid errors
+            // Ensure playerMovement Script is populated to avoid errors
             if (playerMovement != null)
             {
-                // pass our movement input to our playerMovementScript
-                playerMovement.MovePlayer(horizontalInput * Vector2.right);
+                playerMovement.MovePlayer(horizontalInput * Vector2.right); // Pass movement input to PlayerMovement
             }
         }
 
-        // if we press the Fire1 button
+        // Triggered by Clicking
         if (Input.GetButton("Fire1"))
         {
-            // if our shootingScript is populated
+            // If the player has a current weapon, fire it
             if (weapon != null)
             {
-                // tell shootingScript to shoot
-                weapon.Shoot();
+                weapon.Shoot(); // Tell the current weapon to shoot
             }
         }
     }
@@ -71,18 +68,18 @@ public class PlayerInput : MonoBehaviour
         switch (weaponType)
         {
             case WeaponType.machineGun:
-                newWeapon = gameObject.AddComponent<WeaponMachineGun>();
+                newWeapon = gameObject.AddComponent<WeaponMachineGun>(); // Add the selected weapon component to the player
                 break;
             case WeaponType.tripleShot:
-                newWeapon = gameObject.AddComponent<WeaponTripleShot>();
+                newWeapon = gameObject.AddComponent<WeaponTripleShot>(); // Add the selected weapon component to the player
                 break;
         }
 
-        // update the data of our newWeapon with that of our current weapon
+        // Copy bullet prefab and spawn point from the old weapon
         newWeapon.UpdateWeaponControls(weapon);
-        // remove the old weapon
+        // Remove the old weapon so only one weapon is active
         Destroy(weapon);
-        // set our current weapon to be the newWeapon
+        // Set the current weapon to be the newWeapon
         weapon = newWeapon;
     }
 }

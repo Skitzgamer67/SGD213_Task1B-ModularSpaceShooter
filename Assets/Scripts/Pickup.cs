@@ -9,8 +9,7 @@ using UnityEngine;
 /// </summary>
 public class Pickup : MonoBehaviour
 {
-    [SerializeField]
-    public WeaponType weaponType;
+    [SerializeField] private WeaponType weaponType;
 
     void OnTriggerEnter2D(Collider2D col)
     {
@@ -18,24 +17,13 @@ public class Pickup : MonoBehaviour
         {
             GameObject player = col.gameObject;
             HandlePlayerPickup(player);
-            Destroy(gameObject);
-        }
-    }
-
-    void OnCollisionEnter2D(Collision2D col)
-    {
-        if (col.gameObject.tag == "Player")
-        {
-            GameObject player = col.gameObject;
-            HandlePlayerPickup(player);
-            Destroy(gameObject);
+            Destroy(gameObject); // Destroy the pickup after it has been collected.
         }
     }
 
     /// <summary>
     /// HandlePlayerPickup handles all of the actions after a player has been collided with.
-    /// It grabs the IWeapon component from the player, transfers all information to a
-    /// new IWeapon (based on the provided weaponType).
+    /// Gets the PlayerInput component from the player and tells it to swap weapons.
     /// </summary>
     /// <param name="player"></param>
     private void HandlePlayerPickup(GameObject player)

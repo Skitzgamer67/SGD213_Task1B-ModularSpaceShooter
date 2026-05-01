@@ -34,8 +34,10 @@ public class SpawnOverTimeScript : MonoBehaviour
             ourRenderer.enabled = false;
         }
 
+        // Starts separate spawn loops for enemies and pickups
         StartCoroutine(EnemySpawnLoop());
         StartCoroutine(PickupSpawnLoop());
+
     }
 
     private IEnumerator EnemySpawnLoop()
@@ -84,7 +86,7 @@ public class SpawnOverTimeScript : MonoBehaviour
         Instantiate(pickupPrefab, GetRandomSpawnPoint(), Quaternion.identity);
     }
 
-    private GameObject ChooseEnemyPrefabToSpawn()
+    private GameObject ChooseEnemyPrefabToSpawn() // Chooses which enemy type to spawn based on the boss and enemy spaceship chances
     {
         float randomValue = Random.value;
 
@@ -101,7 +103,7 @@ public class SpawnOverTimeScript : MonoBehaviour
         return asteroidPrefab;
     }
 
-    private Vector2 GetRandomSpawnPoint()
+    private Vector2 GetRandomSpawnPoint() // Picks a random x-position within the spawner's renderer bounds
     {
         if (ourRenderer == null)
         {

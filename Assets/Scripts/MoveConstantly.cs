@@ -19,7 +19,7 @@ public class MoveConstantly : MonoBehaviour
     private Vector2 direction = new Vector2(0, 1);
 
     [Header("Asteroid Random Settings")]
-    [SerializeField] private bool randomiseIfNamedEnemy = true;
+    [SerializeField] private bool randomiseIfAsteroid = true;
     [SerializeField] private float minAsteroidSpeed = 3f;
     [SerializeField] private float maxAsteroidSpeed = 8f;
     [SerializeField] private float minAsteroidSpinSpeed = 50f;
@@ -59,7 +59,7 @@ public class MoveConstantly : MonoBehaviour
 
         isAsteroid = IsNamedEnemyAsteroid();
 
-        if (isAsteroid && randomiseIfNamedEnemy)
+        if (isAsteroid && randomiseIfAsteroid) // If this object is the asteroid prefab, randomise its speed and spin
         {
             ApplyRandomAsteroidSettings();
         }
@@ -90,15 +90,15 @@ public class MoveConstantly : MonoBehaviour
         }
     }
 
-    private void OnBecameInvisible()
+    private void OnBecameInvisible() // Destroy objects that leave the camera view to avoid unused objects building up
     {
         Destroy(gameObject);
     }
 
-    /// <summary>
-    /// Checks whether this object is the asteroid prefab called "enemy".
-    /// Unity-spawned prefab instances usually become "enemy(Clone)", so this handles that too.
-    /// </summary>
+    /*
+    Checks whether this object is the asteroid prefab called "Asteroid".
+    Unity-spawned prefab instances usually become "Asteroid(Clone)", so this handles that too
+    */
     private bool IsNamedEnemyAsteroid()
     {
         string cleanName = gameObject.name.Replace("(Clone)", "").Trim();

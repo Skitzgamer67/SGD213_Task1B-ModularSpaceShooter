@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// Handles player bullet movement, enemy collision, and cleanup when off-screen.
+/// </summary>
+
 public class BulletBehaviour : MonoBehaviour
 {
     [Header("Movement")]

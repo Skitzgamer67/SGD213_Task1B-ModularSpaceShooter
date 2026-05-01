@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Simple enemy AI that moves the enemy in a random downward direction
+/// and fires its assigned weapon automatically.
+/// </summary>
+
 public class AIMoveAndShoot : MonoBehaviour {
 
     // state

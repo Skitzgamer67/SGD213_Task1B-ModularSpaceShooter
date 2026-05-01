@@ -37,6 +37,7 @@ public class WeaponTripleShot : WeaponBase
                 bulletSpawnPoint.rotation
             );
 
+            // MoveConstantly bullets do not use rotation for movement so their movement direction must be changed manually
             MoveConstantly moveConstantly = newBullet.GetComponent<MoveConstantly>();
 
             if (moveConstantly != null)
