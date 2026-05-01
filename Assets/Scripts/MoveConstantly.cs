@@ -37,11 +37,14 @@ public class MoveConstantly : MonoBehaviour
     }
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Checks if the other object has the 'Player' tag
-        if (other.CompareTag("Player"))
+        if (gameObject.CompareTag("Enemy")) // Checks if this script is within a gameObject with the Enemy Tag (This is so this script can also be used in the Pickup)
         {
-            Destroy(other.gameObject); // Destroys enemy
-            Destroy(gameObject);       // Destroys bullet
+            // Checks if the other object has the 'Player' tag
+            if (other.CompareTag("Player"))
+            {
+                Destroy(other.gameObject); // Destroys enemy
+                Destroy(gameObject);       // Destroys bullet
+            }
         }
     }
 
