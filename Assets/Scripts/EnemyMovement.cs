@@ -1,33 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
-/// EnemyMovement handles all of the movement specifc state and behaviour for the enemy.
+/// EnemyMovement handles enemy-specific movement requests,
+/// then passes the actual movement work to EngineBase.
 /// </summary>
-public class EnemyMovement : MonoBehaviour {
+[RequireComponent(typeof(EngineBase))]
+public class EnemyMovement : MonoBehaviour
+{
+    private EngineBase engine;
 
-    // enemyAcceleration indicates how fast the enemy accelerates
-    [SerializeField]
-    private float enemyAcceleration = 5000f;
-
-    // local references
-    private Rigidbody2D ourRigidbody;
-
-    void Start() {
-        // populate ourRigidbody
-        ourRigidbody = GetComponent<Rigidbody2D>();
+    private void Awake()
+    {
+        engine = GetComponent<EngineBase>();
     }
 
     /// <summary>
-    /// MoveEnemy takes a direction as a parameter, and applies a force in this provided direction
-    /// to ourRigidbody, based on the enemyAcceleration variables and the delta time.
+    /// Moves the enemy in the provided direction.
     /// </summary>
-    /// <param name="horizontalInput">A direction vector, expected to be a unit vector (magnitude of 1).</param>
-    public void MoveEnemy(Vector2 direction) {
-        //calculate our force to add
-        Vector2 forceToAdd = direction * enemyAcceleration * Time.deltaTime;
-        // apply forceToAdd to ourRigidbody
-        ourRigidbody.AddForce(forceToAdd);
+    public void MoveEnemy(Vector2 direction)
+    {
+        engine.Accelerate(direction);
     }
 }

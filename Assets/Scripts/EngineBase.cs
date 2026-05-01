@@ -1,32 +1,35 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// EngineBase handles shared Rigidbody2D acceleration movement.
+/// PlayerMovement and EnemyMovement use this instead of duplicating movement code.
+/// </summary>
+[RequireComponent(typeof(Rigidbody2D))]
 public class EngineBase : MonoBehaviour
 {
-    // acceleration indicates how fast the enemy accelerates
-    [SerializeField]
-    private float acceleration = 5000f;
+    [Header("Movement")]
+    [SerializeField] private float acceleration = 5000f;
 
-    // local references
     private Rigidbody2D ourRigidbody;
 
-    void Start()
+    private void Awake()
     {
-        // populate ourRigidbody
         ourRigidbody = GetComponent<Rigidbody2D>();
     }
 
     /// <summary>
-    /// Accelerate takes a direction as a parameter, and applies a force in this provided direction
-    /// to ourRigidbody, based on the acceleration variables and the delta time.
+    /// Applies force in the provided direction.
     /// </summary>
-    /// <param name="horizontalInput">A direction vector, expected to be a unit vector (magnitude of 1).</param>
     public void Accelerate(Vector2 direction)
     {
-        //calculate our force to add
-        Vector2 forceToAdd = direction * acceleration * Time.deltaTime;
-        // apply forceToAdd to ourRigidbody
+        if (direction.magnitude == 0)
+        {
+            return;
+        }
+
+        Vector2 normalisedDirection = direction.normalized;
+        Vector2 forceToAdd = normalisedDirection * acceleration * Time.deltaTime;
+
         ourRigidbody.AddForce(forceToAdd);
     }
 }
