@@ -3,8 +3,8 @@
 public class WeaponTripleShot : WeaponBase
 {
     /// <summary>
-    /// Shoots three bullets in a spread pattern, provided enough time has passed.
-    /// This version works with BulletBehaviour because BulletBehaviour moves using transform.up.
+    /// Shoots three bullets in a spread pattern.
+    /// Works with MoveConstantly bullets and BulletBehaviour bullets.
     /// </summary>
     public override void Shoot()
     {
@@ -27,18 +27,35 @@ public class WeaponTripleShot : WeaponBase
             return;
         }
 
-        // Angles for left, centre, and right bullets
-        float[] spreadAngles = { 25f, 0f, -25f };
+        float[] spreadAngles = { -25f, 0f, 25f };
 
         for (int i = 0; i < spreadAngles.Length; i++)
         {
-            Quaternion bulletRotation = bulletSpawnPoint.rotation * Quaternion.Euler(0f, 0f, spreadAngles[i]);
-
-            Instantiate(
+            GameObject newBullet = Instantiate(
                 bullet,
                 bulletSpawnPoint.position,
-                bulletRotation
+                bulletSpawnPoint.rotation
             );
+
+            MoveConstantly moveConstantly = newBullet.GetComponent<MoveConstantly>();
+
+            if (moveConstantly != null)
+            {
+                Vector2 baseDirection = moveConstantly.Direction;
+                Vector2 spreadDirection = Quaternion.Euler(0f, 0f, spreadAngles[i]) * baseDirection;
+
+                // Move in the spread direction
+                moveConstantly.Direction = spreadDirection;
+
+                // Rotate the sprite 180 degrees so it visually faces correctly
+                newBullet.transform.up = -spreadDirection;
+            }
+            else
+            {
+                // For BulletBehaviour bullets, movement uses transform.up
+                newBullet.transform.rotation =
+                    bulletSpawnPoint.rotation * Quaternion.Euler(0f, 0f, spreadAngles[i]);
+            }
         }
 
         lastFiredTime = currentTime;

@@ -1,19 +1,27 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class SpawnOverTimeScript : MonoBehaviour
 {
-    [Header("Prefabs")]
+    [Header("Enemy Prefabs")]
     [SerializeField] private GameObject asteroidPrefab;
     [SerializeField] private GameObject enemySpaceshipPrefab;
+    [SerializeField] private GameObject bossPrefab;
+
+    [Header("Pickup Prefab")]
     [SerializeField] private GameObject pickupPrefab;
 
-    [Header("Spawn Timing")]
-    [SerializeField] private float minSpawnDelay = 2f;
-    [SerializeField] private float maxSpawnDelay = 5f;
+    [Header("Enemy Spawn Timing")]
+    [SerializeField] private float minEnemySpawnDelay = 2f;
+    [SerializeField] private float maxEnemySpawnDelay = 5f;
 
-    [Header("Spawn Chances")]
-    [SerializeField][Range(0f, 1f)] private float pickupSpawnChance = 0.05f; // 5%
-    [SerializeField][Range(0f, 1f)] private float enemySpawnChance = 0.25f;   // 25%
+    [Header("Pickup Spawn Timing")]
+    [SerializeField] private float minPickupSpawnDelay = 30f;
+    [SerializeField] private float maxPickupSpawnDelay = 60f;
+
+    [Header("Enemy Spawn Chances")]
+    [SerializeField][Range(0f, 1f)] private float bossSpawnChance = 0.05f;  // 5%
+    [SerializeField][Range(0f, 1f)] private float enemySpawnChance = 0.25f; // 25%
 
     private Renderer ourRenderer;
 
@@ -26,56 +34,84 @@ public class SpawnOverTimeScript : MonoBehaviour
             ourRenderer.enabled = false;
         }
 
-        StartCoroutine(SpawnLoop());
+        StartCoroutine(EnemySpawnLoop());
+        StartCoroutine(PickupSpawnLoop());
     }
 
-    private System.Collections.IEnumerator SpawnLoop()
+    private IEnumerator EnemySpawnLoop()
     {
         while (true)
         {
-            float delay = Random.Range(minSpawnDelay, maxSpawnDelay);
+            float delay = Random.Range(minEnemySpawnDelay, maxEnemySpawnDelay);
             yield return new WaitForSeconds(delay);
 
-            Spawn();
+            SpawnEnemyType();
         }
     }
 
-    private void Spawn()
+    private IEnumerator PickupSpawnLoop()
     {
-        if (ourRenderer == null)
+        while (true)
         {
-            Debug.LogError("SpawnOverTimeScript needs a Renderer on the spawner object.");
-            return;
+            float delay = Random.Range(minPickupSpawnDelay, maxPickupSpawnDelay);
+            yield return new WaitForSeconds(delay);
+
+            SpawnPickup();
         }
+    }
 
-        float x1 = transform.position.x - ourRenderer.bounds.size.x / 2;
-        float x2 = transform.position.x + ourRenderer.bounds.size.x / 2;
-
-        Vector2 spawnPoint = new Vector2(Random.Range(x1, x2), transform.position.y);
-
-        GameObject prefabToSpawn = ChoosePrefabToSpawn();
+    private void SpawnEnemyType()
+    {
+        GameObject prefabToSpawn = ChooseEnemyPrefabToSpawn();
 
         if (prefabToSpawn == null)
         {
-            Debug.LogError("No prefab assigned to spawn.");
+            Debug.LogError("No enemy prefab assigned to spawn.");
             return;
         }
 
-        Instantiate(prefabToSpawn, spawnPoint, Quaternion.identity);
+        Instantiate(prefabToSpawn, GetRandomSpawnPoint(), Quaternion.identity);
     }
 
-    private GameObject ChoosePrefabToSpawn()
+    private void SpawnPickup()
     {
-        if (pickupPrefab != null && Random.value <= pickupSpawnChance)
+        if (pickupPrefab == null)
         {
-            return pickupPrefab;
+            Debug.LogError("No pickup prefab assigned.");
+            return;
         }
 
-        if (enemySpaceshipPrefab != null && Random.value <= enemySpawnChance)
+        Instantiate(pickupPrefab, GetRandomSpawnPoint(), Quaternion.identity);
+    }
+
+    private GameObject ChooseEnemyPrefabToSpawn()
+    {
+        float randomValue = Random.value;
+
+        if (bossPrefab != null && randomValue <= bossSpawnChance)
+        {
+            return bossPrefab;
+        }
+
+        if (enemySpaceshipPrefab != null && randomValue <= bossSpawnChance + enemySpawnChance)
         {
             return enemySpaceshipPrefab;
         }
 
         return asteroidPrefab;
+    }
+
+    private Vector2 GetRandomSpawnPoint()
+    {
+        if (ourRenderer == null)
+        {
+            Debug.LogError("SpawnOverTimeScript needs a Renderer on the spawner object.");
+            return transform.position;
+        }
+
+        float x1 = transform.position.x - ourRenderer.bounds.size.x / 2;
+        float x2 = transform.position.x + ourRenderer.bounds.size.x / 2;
+
+        return new Vector2(Random.Range(x1, x2), transform.position.y);
     }
 }
