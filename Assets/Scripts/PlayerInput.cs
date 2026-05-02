@@ -4,15 +4,19 @@ using UnityEngine;
 
 /// <summary>
 /// PlayerInput handles all of the player specific input behaviour, and passes the input information
-/// to the appropriate scripts
+/// to the appropriate scripts.
 /// </summary>
 public class PlayerInput : MonoBehaviour
 {
+    [Header("Powerup Settings")]
+    [SerializeField] private float tripleShotDuration = 10f;
 
-    // local references
+    // Local references
     private PlayerMovement playerMovement;
-
     private WeaponBase weapon;
+
+    private Coroutine tripleShotTimerCoroutine;
+
     public WeaponBase Weapon
     {
         get
@@ -26,29 +30,27 @@ public class PlayerInput : MonoBehaviour
         }
     }
 
-    void Start()
+    private void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
         weapon = GetComponent<WeaponBase>();
     }
 
-    void Update()
+    private void Update()
     {
         float horizontalInput = Input.GetAxis("Horizontal"); // Reads the horizontal input axis
 
         if (horizontalInput != 0.0f) // If movement input is not zero
         {
-            // Ensure playerMovement Script is populated to avoid errors
             if (playerMovement != null)
             {
                 playerMovement.MovePlayer(horizontalInput * Vector2.right); // Pass movement input to PlayerMovement
             }
         }
 
-        // Triggered by Clicking
+        // Triggered by clicking / pressing Fire1
         if (Input.GetButton("Fire1"))
         {
-            // If the player has a current weapon, fire it
             if (weapon != null)
             {
                 weapon.Shoot(); // Tell the current weapon to shoot
@@ -57,29 +59,78 @@ public class PlayerInput : MonoBehaviour
     }
 
     /// <summary>
-    /// SwapWeapon handles creating a new WeaponBase component based on the given weaponType. This
-    /// will popluate the newWeapon's controls and remove the existing weapon ready for usage.
+    /// Creates a new WeaponBase component based on the given weaponType.
+    /// If tripleShot is selected, it starts a timer and then switches back to machineGun.
     /// </summary>
-    /// <param name="weaponType">The given weaponType to swap our current weapon to, this is an enum in WeaponBase.cs</param>
     public void SwapWeapon(WeaponType weaponType)
     {
-        // make a new weapon dependent on the weaponType
+        if (weapon == null)
+        {
+            Debug.LogError("Player does not currently have a weapon to copy settings from.");
+            return;
+        }
+
         WeaponBase newWeapon = null;
+
         switch (weaponType)
         {
             case WeaponType.machineGun:
-                newWeapon = gameObject.AddComponent<WeaponMachineGun>(); // Add the selected weapon component to the player
+                newWeapon = gameObject.AddComponent<WeaponMachineGun>();
+
+                // Stop the triple shot timer if switching back to machine gun manually
+                if (tripleShotTimerCoroutine != null)
+                {
+                    StopCoroutine(tripleShotTimerCoroutine);
+                    tripleShotTimerCoroutine = null;
+                }
+
                 break;
+
             case WeaponType.tripleShot:
-                newWeapon = gameObject.AddComponent<WeaponTripleShot>(); // Add the selected weapon component to the player
+                newWeapon = gameObject.AddComponent<WeaponTripleShot>();
                 break;
+        }
+
+        if (newWeapon == null)
+        {
+            Debug.LogError("Weapon swap failed.");
+            return;
         }
 
         // Copy bullet prefab and spawn point from the old weapon
         newWeapon.UpdateWeaponControls(weapon);
+
         // Remove the old weapon so only one weapon is active
         Destroy(weapon);
-        // Set the current weapon to be the newWeapon
+
+        // Set the current weapon to be the new weapon
         weapon = newWeapon;
+
+        // Start or reset the triple shot timer
+        if (weaponType == WeaponType.tripleShot)
+        {
+            if (tripleShotTimerCoroutine != null)
+            {
+                StopCoroutine(tripleShotTimerCoroutine);
+            }
+
+            tripleShotTimerCoroutine = StartCoroutine(TripleShotTimer());
+        }
+    }
+
+    /// <summary>
+    /// Waits for the triple shot duration, then switches the player back to machine gun.
+    /// </summary>
+    private IEnumerator TripleShotTimer()
+    {
+        yield return new WaitForSeconds(tripleShotDuration);
+
+        tripleShotTimerCoroutine = null;
+
+        // Only switch back if the player is still using triple shot
+        if (weapon is WeaponTripleShot)
+        {
+            SwapWeapon(WeaponType.machineGun);
+        }
     }
 }
